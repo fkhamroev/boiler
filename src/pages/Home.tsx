@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import boilersData from '../data/boilers.json';
 import { Link } from 'react-router-dom';
+import { boilers } from '../data/boilers';
 
 const container = {
   hidden: { opacity: 0 },
@@ -32,32 +32,35 @@ export const Home = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       >
-        {boilersData.boilers.map((boiler) => (
+        {boilers.map((boiler, boilerIndex) => (
           <motion.div
-            key={boiler.id}
+            key={boilerIndex}
             variants={item}
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
-            <div className="relative h-48">
-              <img
-                src={boiler.image}
-                alt={boiler.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
             <div className="p-6">
-              <h2 className="text-xl font-semibold mb-2">{boiler.name}</h2>
-              <p className="text-gray-600 mb-4 line-clamp-2">
-                {boiler.description}
-              </p>
-              <Link
-                to={`/boiler/${boiler.id}`}
-                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-              >
-                Подробнее
-              </Link>
+              <h2 className="text-2xl font-semibold mb-4">{boiler.name}</h2>
+              <p className="text-gray-600 mb-6">{boiler.description}</p>
+              
+              <div className="space-y-3">
+                {boiler.models.map((model, modelIndex) => (
+                  <Link
+                    key={modelIndex}
+                    to={`/boiler/${boilerIndex}/${modelIndex}`}
+                    className="block bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-800">{model.model}</span>
+                      <span className="text-blue-600">{model.powerOutput.CH} кВт</span>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-500">
+                      КПД: {model.efficiency} • {model.flowRate}
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </motion.div>
         ))}
