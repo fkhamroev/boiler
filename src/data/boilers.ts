@@ -1,142 +1,153 @@
-import nitromixp24 from '../assets/nitromixp24.png'
+import boiler from "../assets/boiler.png";
 
-export const boilers = [
+export interface BoilerModel {
+  id: string;
+  name: string;
+  power: string;
+  efficiency: string;
+  flowRate: string;
+  weight: string;
+  dimensions: {
+    height: string;
+    width: string;
+    depth: string;
+  };
+  features: string[];
+  warranty: string;
+}
+
+export interface Boiler {
+  id: string;
+  brand: string;
+  description: string;
+  img: string;
+  models: BoilerModel[];
+}
+
+export const boilers: Boiler[] = [
   {
-    "name": "Nitromix",
-    "description": "Высокоэффективный и экономичный конденсационный котел",
-    "img" : nitromixp24,
-    "models": [
+    id: "ariston",
+    brand: "Ariston",
+    description: "Итальянские котлы премиум класса",
+    img: boiler,
+    models: [
       {
-        "model": "Nitromix P24",
-        "efficiency": "109%",
-        "powerOutput": {
-          "CH": 23,
-          "DHW": 11
+        id: "p215",
+        name: "P215",
+        power: "21.5 кВт",
+        efficiency: "93%",
+        flowRate: "13.5 л/мин",
+        weight: "28 кг",
+        dimensions: {
+          height: "700 мм",
+          width: "400 мм",
+          depth: "300 мм",
         },
-        "flowRate": "12.5 л/мин",
-        "heatExchanger": "Нержавеющая сталь",
-        "dimensions": {
-          "height": "740 мм",
-          "width": "425 мм",
-          "depth": "310 мм"
-        },
-        "weight": "32.3 кг",
-        "color": "Белый"
+        features: [
+          "Электронный розжиг",
+          "Защита от замерзания",
+          "Система самодиагностики",
+          "LCD дисплей",
+        ],
+        warranty: "3 года",
       },
       {
-        "model": "Nitromix P28",
-        "efficiency": "109%",
-        "powerOutput": {
-          "CH": 27,
-          "DHW": 12.5
+        id: "p224",
+        name: "P224",
+        power: "24 кВт",
+        efficiency: "94%",
+        flowRate: "14 л/мин",
+        weight: "30 кг",
+        dimensions: {
+          height: "700 мм",
+          width: "400 мм",
+          depth: "300 мм",
         },
-        "flowRate": "12.5 л/мин",
-        "heatExchanger": "Нержавеющая сталь",
-        "dimensions": {
-          "height": "740 мм",
-          "width": "425 мм",
-          "depth": "340 мм"
-        },
-        "weight": "34 кг",
-        "color": "Белый"
+        features: [
+          "Электронный розжиг",
+          "Защита от замерзания",
+          "Система самодиагностики",
+          "LCD дисплей",
+          "Wi-Fi модуль",
+        ],
+        warranty: "3 года",
       },
-      {
-        "model": "Nitromix P35",
-        "efficiency": "109%",
-        "powerOutput": {
-          "CH": 35,
-          "DHW": 15
-        },
-        "flowRate": "15 л/мин",
-        "heatExchanger": "Нержавеющая сталь",
-        "dimensions": {
-          "height": "740 мм",
-          "width": "425 мм",
-          "depth": "340 мм"
-        },
-        "weight": "35.5 кг",
-        "color": "Белый"
-      }
-    ]
+    ],
   },
   {
-    "name": "Nitron Condense",
-    "description": "Высокоэффективный конденсационный котел",
-    "models": [
+    id: "baxi",
+    brand: "BAXI",
+    description: "Надежные итальянские котлы",
+    img: boiler,
+    models: [
       {
-        "model": "Nitron Condense P24",
-        "efficiency": "103%",
-        "powerOutput": {
-          "CH": 23,
-          "DHW": 11.6
+        id: "eco-classic",
+        name: "ECO Classic 24",
+        power: "24 кВт",
+        efficiency: "92%",
+        flowRate: "14 л/мин",
+        weight: "29 кг",
+        dimensions: {
+          height: "730 мм",
+          width: "400 мм",
+          depth: "299 мм",
         },
-        "flowRate": "11.6 л/мин",
-        "heatExchanger": "Медь",
-        "dimensions": {
-          "height": "702 мм",
-          "width": "405 мм",
-          "depth": "330 мм"
-        },
-        "weight": "37 кг",
-        "color": "Белый"
+        features: [
+          "Битермический теплообменник",
+          "Электронный розжиг",
+          "Защита от замерзания",
+          "ЖК-дисплей",
+        ],
+        warranty: "2 года",
       },
       {
-        "model": "Nitron Condense P28",
-        "efficiency": "103%",
-        "powerOutput": {
-          "CH": 27,
-          "DHW": 11.7
+        id: "main-5",
+        name: "MAIN 5 18 F",
+        power: "18 кВт",
+        efficiency: "93%",
+        flowRate: "10.3 л/мин",
+        weight: "26 кг",
+        dimensions: {
+          height: "700 мм",
+          width: "400 мм",
+          depth: "300 мм",
         },
-        "flowRate": "11.7 л/мин",
-        "heatExchanger": "Медь",
-        "dimensions": {
-          "height": "702 мм",
-          "width": "430 мм",
-          "depth": "330 мм"
-        },
-        "weight": "38 кг",
-        "color": "Белый"
-      }
-    ]
+        features: [
+          "Компактные размеры",
+          "Электронный розжиг",
+          "Система защиты от замерзания",
+          "Манометр",
+        ],
+        warranty: "2 года",
+      },
+    ],
   },
   {
-    "name": "Atron",
-    "description": "Высокоэффективный и современный газовый котел",
-    "models": [
+    id: "vaillant",
+    brand: "Vaillant",
+    description: "Немецкое качество и надежность",
+    img: boiler,
+    models: [
       {
-        "model": "Atron H24",
-        "efficiency": "93%",
-        "powerOutput": {
-          "CH": 23.5,
-          "DHW": 10.7
+        id: "turbotec-plus",
+        name: "turboTEC plus VU 242/5-5",
+        power: "24 кВт",
+        efficiency: "94%",
+        flowRate: "13.8 л/мин",
+        weight: "35 кг",
+        dimensions: {
+          height: "720 мм",
+          width: "440 мм",
+          depth: "335 мм",
         },
-        "flowRate": "10.7 л/мин",
-        "heatExchanger": "Медь",
-        "dimensions": {
-          "height": "700 мм",
-          "width": "410 мм",
-          "depth": "295 мм"
-        },
-        "weight": "30.5 кг",
-        "color": "Белый"
+        features: [
+          "Система Aqua Power Plus",
+          "Система Aqua Comfort Plus",
+          "Электронный розжиг",
+          "Многофункциональный дисплей",
+        ],
+        warranty: "2 года",
       },
-      {
-        "model": "Atron H28",
-        "efficiency": "93%",
-        "powerOutput": {
-          "CH": 27,
-          "DHW": 12.7
-        },
-        "flowRate": "12.7 л/мин",
-        "heatExchanger": "Медь",
-        "dimensions": {
-          "height": "700 мм",
-          "width": "444 мм",
-          "depth": "295 мм"
-        },
-        "weight": "33 кг",
-        "color": "Белый"
-      }
-    ]
-  }
-]
+    ],
+  },
+];

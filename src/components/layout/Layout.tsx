@@ -1,19 +1,17 @@
-import { motion } from 'framer-motion';
-import { Outlet } from 'react-router-dom';
-import { Navbar } from './Navbar';
+import { ReactNode } from "react";
+import Header from "./Header";
+import Footer from "./Footer";
 
-export const Layout = () => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="container mx-auto px-4 py-8"
-      >
-        <Outlet />
-      </motion.div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 py-8 mt-20">{children}</main>
+      <Footer />
     </div>
   );
 };

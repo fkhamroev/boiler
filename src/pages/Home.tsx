@@ -1,70 +1,99 @@
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { boilers } from '../data/boilers';
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
-};
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { boilers } from "@/data/boilers";
+import { BoilerCard } from "@/components/boiler/BoilerCard";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import bg from "@/assets/bg.png";
 
 export const Home = () => {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-4xl font-bold text-center mb-12"
-      >
-        Каталог котлов
-      </motion.h1>
+  const featuredBoilers = boilers.slice(0, 3);
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-      >
-        {boilers.map((boiler, boilerIndex) => (
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
+      {/* Hero Section */}
+      <section className="relative h-[600px] flex items-center">
+        <div className="absolute inset-0 overflow-hidden">
+          <img 
+            src={bg} 
+            alt="background" 
+            className="w-full h-full object-cover opacity-40 dark:opacity-20"
+          />
+        </div>
+
+        {/* Content */}
+        <div className="container relative z-10">
           <motion.div
-            key={boilerIndex}
-            variants={item}
-            className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl"
           >
-            <div className="p-6">
-              <h2 className="text-2xl font-semibold mb-4">{boiler.name}</h2>
-              <p className="text-gray-600 mb-6">{boiler.description}</p>
-              
-              <div className="space-y-3">
-                {boiler.models.map((model, modelIndex) => (
-                  <Link
-                    key={modelIndex}
-                    to={`/boiler/${boilerIndex}/${modelIndex}`}
-                    className="block bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-800">{model.model}</span>
-                      <span className="text-blue-600">{model.powerOutput.CH} кВт</span>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      КПД: {model.efficiency} • {model.flowRate}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Найдите идеальный бойлер для вашего дома
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+              Широкий выбор современных и эффективных бойлеров от ведущих производителей
+            </p>
+            <Button asChild size="lg">
+              <Link to="/catalog">
+                Перейти в каталог
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </motion.div>
-        ))}
-      </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Boilers Section */}
+      <section className="py-16 bg-muted/50">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-4">Популярные модели</h2>
+            <p className="text-muted-foreground">
+              Ознакомьтесь с нашими лучшими предложениями
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredBoilers.map((boiler) => (
+              <BoilerCard
+                key={boiler.id}
+                id={boiler.id}
+                brand={boiler.brand}
+                description={boiler.description}
+                img={boiler.img}
+                models={boiler.models}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center mt-12"
+          >
+            <Button asChild variant="outline" size="lg">
+              <Link to="/catalog">
+                Смотреть все бойлеры
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };

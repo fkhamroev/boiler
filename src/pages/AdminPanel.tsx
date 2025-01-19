@@ -1,192 +1,328 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
-import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-import { boilers } from "../data/boilers";
+import { useReactToPrint } from "react-to-print";
+import { boilers } from "@/data/boilers";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Printer, QrCode, Lock } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const ADMIN_CREDENTIALS = {
-  login: "admin@mail.ru",
-  password: "adminjon",
+  login: "megastroy",
+  password: "1515",
+};
+
+// Функция для получения базового URL в зависимости от окружения
+const getBaseUrl = () => {
+  // В production используем реальный домен
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.REACT_APP_BASE_URL || window.location.origin;
+  }
+  // В development используем localhost
+  return window.location.origin;
 };
 
 export const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [selectedBoiler, setSelectedBoiler] = useState<{
-    boilerId: number;
-    modelId: number;
-  } | null>(null);
-  const [loginError, setLoginError] = useState("");
-  const [formData, setFormData] = useState({
+  const [loginData, setLoginData] = useState({
     login: "",
     password: "",
   });
+  const [selectedBoiler, setSelectedBoiler] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [showQR, setShowQR] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setLoginError("");
-  };
+  const boiler = boilers.find((b) => b.id === selectedBoiler);
+  const model = boiler?.models.find((m) => m.id === selectedModel);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: `QR Code - ${boiler?.brand}${model ? ` - ${model.name}` : ""}`,
+    removeAfterPrint: true,
+    onAfterPrint: () => {
+      toast.success("QR-код успешно отправлен на печать");
+    },
+    onPrintError: () => {
+      toast.error("Ошибка при печати QR-кода");
+    },
+  });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (
-      formData.login === ADMIN_CREDENTIALS.login &&
-      formData.password === ADMIN_CREDENTIALS.password
+      loginData.login === ADMIN_CREDENTIALS.login &&
+      loginData.password === ADMIN_CREDENTIALS.password
     ) {
       setIsAuthenticated(true);
-      toast.success("Вы успешно вошли в админ панель");
-      setLoginError("");
+      toast.success("Вы успешно вошли в систему");
     } else {
-      setLoginError("Неверный логин или пароль");
+      toast.error("Неверный логин или пароль");
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Генерация URL для QR-кода
+  const generateQrUrl = () => {
+    if (!selectedBoiler || !selectedModel) return "";
+    
+    const baseUrl = getBaseUrl();
+    return `${baseUrl}/catalog/${selectedBoiler}/${selectedModel}`;
+  };
+
+  const qrUrl = generateQrUrl();
+
+  // Функция для тестирования URL
+  const handleTestUrl = () => {
+    if (!qrUrl) {
+      toast.error("Выберите модель бойлера");
+      return;
+    }
+
+    try {
+      window.open(qrUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      toast.error("Ошибка при открытии URL");
+      console.error("Error opening URL:", error);
+    }
+  };
+
+  const handleGenerateQR = () => {
+    if (!selectedBoiler || !selectedModel) {
+      toast.error("Выберите бойлер и модель");
+      return;
+    }
+    setShowQR(true);
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="bg-gray-100 h-full w-full">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="max-w-md mx-auto mt-20 p-6 bg-white rounded-lg shadow-lg"
-      >
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Вход в админ панель
-        </h2>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Логин
-            </label>
-            <input
-              type="text"
-              name="login"
-              value={formData.login}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
-              placeholder="Введите логин"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Пароль
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
-              placeholder="Введите пароль"
-            />
-          </div>
-          {loginError && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-red-500 text-sm mt-2"
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-8 mt-20">
+          <div className="container max-w-md">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-8"
             >
-              {loginError}
-            </motion.p>
-          )}
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Войти
-          </button>
-        </form>
-      </motion.div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="w-5 h-5" />
+                    Вход в админ панель
+                  </CardTitle>
+                  <CardDescription>
+                    Введите ваши учетные данные для входа
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login">Логин</Label>
+                      <Input
+                        id="login"
+                        name="login"
+                        type="text"
+                        value={loginData.login}
+                        onChange={handleInputChange}
+                        placeholder="Введите логин"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Пароль</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={loginData.password}
+                        onChange={handleInputChange}
+                        placeholder="Введите пароль"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Войти
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="mx-auto mt-8 p-6"
-    >
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Админ панель</h1>
-          <button
-            onClick={() => setIsAuthenticated(false)}
-            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
+      <main className="flex-1 py-8 mt-20">
+        <div className="container max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
           >
-            Выйти
-          </button>
-        </div>
+            <div className="text-center">
+              <h1 className="text-4xl font-bold">Админ панель</h1>
+              <p className="text-muted-foreground mt-2">
+                Управление QR-кодами для бойлеров
+              </p>
+            </div>
 
-        <div className="grid gap-6">
-          <Link
-            to="/catalog"
-            className="block p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-          >
-            <h2 className="text-xl font-semibold text-blue-800 mb-2">
-              Каталог котлов
-            </h2>
-            <p className="text-blue-600">
-              Управление каталогом котлов, просмотр деталей и редактирование
-              информации
-            </p>
-          </Link>
+            <Card>
+              <CardHeader>
+                <CardTitle>Генерация QR-кода</CardTitle>
+                <CardDescription>
+                  Выберите производителя и модель для создания QR-кода
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Производитель</Label>
+                    <Select
+                      value={selectedBoiler}
+                      onValueChange={(value) => {
+                        setSelectedBoiler(value);
+                        setSelectedModel("");
+                        setShowQR(false);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите производителя" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {boilers.map((boiler) => (
+                          <SelectItem key={boiler.id} value={boiler.id}>
+                            {boiler.brand}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Список котлов</h2>
-            <div className="grid grid-cols-1 gap-6">
-              {boilers.map((boiler, boilerIndex) => (
-                <div key={boilerIndex} className="bg-gray-50 p-6 rounded-lg">
-                  <h2 className="text-xl font-semibold mb-4">{boiler.name}</h2>
-                  <div className="grid gap-4">
-                    {boiler.models.map((model, modelIndex) => (
-                      <div
-                        key={modelIndex}
-                        className="bg-white p-4 rounded-lg shadow"
-                      >
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">{model.model}</h3>
-                          <button
-                            onClick={() =>
-                              setSelectedBoiler({
-                                boilerId: boilerIndex,
-                                modelId: modelIndex,
-                              })
-                            }
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                          >
-                            Сгенерировать QR
-                          </button>
-                        </div>
-
-                        {selectedBoiler?.boilerId === boilerIndex &&
-                          selectedBoiler?.modelId === modelIndex && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="mt-4"
-                            >
-                              <QRCodeSVG
-                                value={`${window.location.origin}/boiler/${boilerIndex}/${modelIndex}`}
-                                size={128}
-                                level="H"
-                                includeMargin={true}
-                              />
-                            </motion.div>
-                          )}
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    <Label>Модель</Label>
+                    <Select
+                      value={selectedModel}
+                      onValueChange={(value) => {
+                        setSelectedModel(value);
+                        setShowQR(false);
+                      }}
+                      disabled={!selectedBoiler}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите модель" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {boiler?.models.map((model) => (
+                          <SelectItem key={model.id} value={model.id}>
+                            {model.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                <div className="flex justify-center">
+                  <Button
+                    type="button"
+                    onClick={handleGenerateQR}
+                    disabled={!selectedBoiler || !selectedModel}
+                  >
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Сгенерировать QR-код
+                  </Button>
+                </div>
+
+                {showQR && qrUrl && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center space-y-4"
+                  >
+                    <div
+                      ref={printRef}
+                      className="p-8 bg-white rounded-lg shadow-lg"
+                    >
+                      <div className="text-center mb-4">
+                        <h3 className="font-bold">{boiler?.brand}</h3>
+                        {model && (
+                          <p className="text-sm text-muted-foreground">
+                            {model.name}
+                          </p>
+                        )}
+                      </div>
+                      <QRCodeSVG
+                        value={qrUrl}
+                        size={200}
+                        level="H"
+                        includeMargin
+                      />
+                      <p className="mt-4 text-xs text-muted-foreground break-all">
+                        {qrUrl}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (printRef.current) {
+                            handlePrint();
+                          }
+                        }}
+                      >
+                        <Printer className="w-4 h-4 mr-2" />
+                        Печать QR-кода
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleTestUrl}
+                      >
+                        <QrCode className="w-4 h-4 mr-2" />
+                        Тестировать QR-код
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </div>
-    </motion.div>
+      </main>
+
+      <Footer />
+    </div>
   );
 };
