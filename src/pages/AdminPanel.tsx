@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
-import { useReactToPrint } from "react-to-print";
 import { boilers } from "@/data/boilers";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -54,17 +53,17 @@ export const AdminPanel = () => {
   const boiler = boilers.find((b) => b.id === selectedBoiler);
   const model = boiler?.models.find((m) => m.id === selectedModel);
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    documentTitle: `QR Code - ${boiler?.brand}${model ? ` - ${model.name}` : ""}`,
-    removeAfterPrint: true,
-    onAfterPrint: () => {
-      toast.success("QR-код успешно отправлен на печать");
-    },
-    onPrintError: () => {
-      toast.error("Ошибка при печати QR-кода");
-    },
-  });
+  // const handlePrint = useReactToPrint({
+  //   content: () => printRef.current,
+  //   documentTitle: `QR Code - ${boiler?.brand}${model ? ` - ${model.name}` : ""}`,
+  //   removeAfterPrint: true,
+  //   onAfterPrint: () => {
+  //     toast.success("QR-код успешно отправлен на печать");
+  //   },
+  //   onPrintError: () => {
+  //     toast.error("Ошибка при печати QR-кода");
+  //   },
+  // });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,11 +295,11 @@ export const AdminPanel = () => {
                     <div className="flex gap-4">
                       <Button
                         type="button"
-                        onClick={() => {
-                          if (printRef.current) {
-                            handlePrint();
-                          }
-                        }}
+                        // onClick={() => {
+                        //   if (printRef.current) {
+                        //     handlePrint();
+                        //   }
+                        // }}
                       >
                         <Printer className="w-4 h-4 mr-2" />
                         Печать QR-кода
